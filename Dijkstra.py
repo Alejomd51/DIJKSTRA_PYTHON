@@ -1,78 +1,73 @@
 import heapq
 
-def dijkstra(grafo, origen):
-    """
-    Calcula la distancia mínima desde el nodo origen
-    hacia todos los demás nodos usando Dijkstra.
-    """
+class Dijkstra:
 
-    # Inicializar distancias
-    distancias = {nodo: float('inf') for nodo in grafo}
-    distancias[origen] = 0
+    @staticmethod
+    def calcular(grafo, origen, destino):
+        """
+        grafo: objeto de la clase Grafo
+        origen: nodo inicial
+        destino: nodo final
+        """
 
-    # Diccionario para reconstruir la ruta
-    anteriores = {nodo: None for nodo in grafo}
+        datos = grafo.obtener_grafo()
 
-    # Cola de prioridad
-    cola = [(0, origen)]
+        # Verificar que existan los nodos
+        if origen not in datos or destino not in datos:
+            return None, None
 
-    while cola:
-        distancia_actual, nodo_actual = heapq.heappop(cola)
+        # Inicializar distancias
+        distancias = {
+            nodo: float("inf")
+            for nodo in datos
+        }
 
-        # Si ya existe una distancia mejor, ignorar
-        if distancia_actual > distancias[nodo_actual]:
-            continue
+        distancias[origen] = 0
 
-        # Recorrer vecinos
-        for vecino, peso in grafo[nodo_actual]:
-            nueva_distancia = distancia_actual + peso
+        # Nodo anterior para reconstruir la ruta
+        anteriores = {
+            nodo: None
+            for nodo in datos
+        }
 
-            if nueva_distancia < distancias[vecino]:
-                distancias[vecino] = nueva_distancia
-                anteriores[vecino] = nodo_actual
-                heapq.heappush(cola, (nueva_distancia, vecino))
+        # Cola de prioridad
+        cola = [(0, origen)]
 
-    return distancias, anteriores
+        while cola:
 
+            distancia_actual, nodo_actual = heapq.heappop(cola)
 
-def obtener_ruta(anteriores, origen, destino):
-    """
-    Reconstruye la ruta desde el origen hasta el destino.
-    """
+            # Ignorar si existe una mejor distancia
+            if distancia_actual > distancias[nodo_actual]:
+                continue
 
-    ruta = []
-    actual = destino
+            # Recorrer vecinos
+            for vecino, peso in datos[nodo_actual].items():
 
-    while actual is not None:
-        ruta.append(actual)
-        actual = anteriores[actual]
+                nueva_distancia = distancia_actual + peso
 
-    ruta.reverse()
+                if nueva_distancia < distancias[vecino]:
 
-    if ruta[0] == origen:
-        return ruta
-    else:
-        return []
+                    distancias[vecino] = nueva_distancia
+                    anteriores[vecino] = nodo_actual
 
+                    heapq.heappush(
+                        cola,
+                        (nueva_distancia, vecino)
+                    )
 
-# ===============================
-# EJEMPLO DE USO
-# ===============================
+        # Reconstruir la ruta
+        ruta = []
 
-grafo = {
-    'A': [('B', 4), ('C', 2)],
-    'B': [('A', 4), ('C', 1), ('D', 5)],
-    'C': [('A', 2), ('B', 1), ('D', 8), ('E', 10)],
-    'D': [('B', 5), ('C', 8), ('E', 2), ('F', 6)],
-    'E': [('C', 10), ('D', 2), ('F', 3)],
-    'F': [('D', 6), ('E', 3)]
-}
+        actual = destino
 
-origen = 'A'
-destino = 'F'
+        while actual is not None:
+            ruta.append(actual)
+            actual = anteriores[actual]
 
-distancias, anteriores = dijkstra(grafo, origen)
-ruta = obtener_ruta(anteriores, origen, destino)
+        ruta.reverse()
 
-print("Distancia mínima:", distancias[destino])
-print("Ruta:", " -> ".join(ruta))
+        if not ruta or ruta[0] != origen:
+            return None, None
+
+        return ruta, distancias[destino]
