@@ -3,9 +3,8 @@ class Grafo:
     def __init__(self):
         # Diccionario que almacena el grafo
         self.grafo = {}
-        
-    # NODOS
 
+    # NODOS
 
     def agregar_nodo(self, nodo):
         if nodo not in self.grafo:
@@ -55,6 +54,20 @@ class Grafo:
 
     def obtener_grafo(self):
         return self.grafo
+
+    def obtener_aristas(self):
+        aristas = []
+        vistos = set()
+
+        for origen, vecinos in self.grafo.items():
+            for destino, peso in vecinos.items():
+                par = frozenset((origen, destino))
+
+                if par not in vistos:
+                    vistos.add(par)
+                    aristas.append((origen, destino, peso))
+
+        return aristas
 
     # MOSTRAR
 
